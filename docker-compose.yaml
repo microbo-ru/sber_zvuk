@@ -27,7 +27,9 @@ services:
     #   - airflow
 
   worker:
-    build: ./src/openapi_server/worker
+    build:
+      context: .
+      dockerfile: Dockerfile_worker
     command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./src/openapi_server/worker:/usr/src/app

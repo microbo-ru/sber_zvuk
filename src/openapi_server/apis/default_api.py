@@ -45,7 +45,11 @@ async def get_recognize_status(
         prefix: str = Path(None, description="Course ID"),
 ) -> RecognizeResponse:
     task = create_task.delay(1)
-    result = {'code': '200', 'message': task.id}
+
+    result = {
+        'code': '200',
+        'message': task.id
+    }
     return result
 
 
@@ -69,6 +73,8 @@ async def start_recognize(
 ) -> ApiResponse:
     process_file(body.source, body.prefix)
 
-    result = {'code': 200, 'message': 'sheduled'}
+    result = {
+        'code': '200',
+        'message': 'sheduled'
+    }
     return result
-    # ...
