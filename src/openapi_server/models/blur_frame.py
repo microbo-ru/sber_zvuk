@@ -5,6 +5,21 @@ import cv2
 
 
 class BlurFrame:
+    """
+    # How to use this class:
+
+    # CV loaded image as input frame, this is loaded here for testing
+    image = cv2.imread('/content/1.jpg')
+
+    # arrays of corner points, for the frame
+    corner_points = [[(190, 100), (60, 150)], [(500, 100), (440, 150)]]
+
+    # object of this class for initialization
+    blur_it = BlurFrames(image, corner_points=corner_points)
+
+    # calling the blur_frame function to get blurred image, we can write in another way, it's basic.
+    filtered_image = blur_it.blur_frame()
+    """
     def __init__(self, frame, corner_points: list):
         """
         This function requires a frame and the corner_points for applying blur
