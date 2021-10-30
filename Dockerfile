@@ -9,6 +9,8 @@ RUN pip install --upgrade pip
 
 COPY . .
 RUN pip install --no-cache-dir .
+# why req doesn't work?
+RUN pip install boto3
 
 
 FROM python:3.7 AS test_runner

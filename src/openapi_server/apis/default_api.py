@@ -20,10 +20,10 @@ from openapi_server.models.extra_models import TokenModel  # noqa: F401
 from openapi_server.models.api_response import ApiResponse
 from openapi_server.models.recognize_request import RecognizeRequest
 from openapi_server.models.recognize_response import RecognizeResponse
-
+import boto3
+import os
 
 router = APIRouter()
-
 
 @router.get(
     "/recognize/status/{prefix}",
@@ -37,7 +37,10 @@ router = APIRouter()
 async def get_recognize_status(
     prefix: str = Path(None, description="Course ID"),
 ) -> RecognizeResponse:
-    ...
+    d = {}
+    d['code'] = '200'
+    d['message'] = 'TBD'
+    return d
 
 
 @router.post(
