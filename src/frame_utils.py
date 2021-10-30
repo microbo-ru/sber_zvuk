@@ -1,7 +1,7 @@
 from moviepy.editor import *
 from PIL import Image
 import os
-import cv2
+import json
 
 
 def save_frame(frame, path):
@@ -12,10 +12,15 @@ def save_frame(frame, path):
 def get_frames(video_path, frames_save_path):
     # TODO: create meta-file .json
     video_clip = VideoFileClip(video_path)
+
+    video_fps = video_clip.fps
+    video_name = video_path.split('/')[-1]
+    video_duration = video_clip.duration
+
     frame_prefix_name = video_path.split('/')[-1].split('.')[-2]
     if not os.path.isdir(frames_save_path):
         os.mkdir(frames_save_path)
-    num_of_frames = int(video_clip.fps * video_clip.duration)
+    num_of_frames = int(video_fps * video_duration)
 
     counter = 0
     for frame in video_clip.iter_frames():
@@ -26,8 +31,18 @@ def get_frames(video_path, frames_save_path):
         # save the frame with the current duration
         save_frame(frame, frame_filename)
         counter += 1
+
     print(f"{counter} frames saved")
     video_clip.close()
+
+    #build JSON-file
+    data = {"name" : video_name,
+            "duration" : video_duration,
+            "fps" : video_fps,
+            "number_of_frames" : counter}
+    with open(os.path.join(frames_save_path, "metadata.json"), "w") as file:
+        json.dump(data, file)
+
 
 
 def combine_frames(frames_path, save_path, video_file_name, fps=25):
@@ -38,7 +53,7 @@ def combine_frames(frames_path, save_path, video_file_name, fps=25):
              for m in files]
 
     concat_clip = concatenate_videoclips(clips, method="compose")
-    concat_clip.write_videofile(os.path.join(save_path, "test.mp4"), fps=fps)
+    concat_clip.write_videofile(os.path.join(save_path, f"{video_file_name}.mp4"), fps=fps)
 
 
 #get_frames("D:/Загрузки/SampleVideo.mp4", "D:/datasets/sber_zvuk_samples")
