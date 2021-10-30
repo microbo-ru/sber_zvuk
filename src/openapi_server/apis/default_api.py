@@ -22,6 +22,9 @@ from openapi_server.models.recognize_request import RecognizeRequest
 from openapi_server.models.recognize_response import RecognizeResponse
 import boto3
 import os
+# import urllib
+import urllib.request
+from urllib.parse import urlparse
 
 router = APIRouter()
 
@@ -43,6 +46,12 @@ async def get_recognize_status(
     return d
 
 
+def process_file(url, prefix):
+    a = urlparse(url)
+    file_name = os.path.basename(a.path)
+    urllib.request.urlretrieve(url, f'/root/app/store/{prefix}_{file_name}')
+
+
 @router.post(
     "/recognize",
     responses={
@@ -55,4 +64,10 @@ async def get_recognize_status(
 async def start_recognize(
     body: RecognizeRequest = Body(None, description="Pet object that needs to be added to the store"),
 ) -> ApiResponse:
-    ...
+
+    process_file(body.source, body.prefix)
+    d = {}
+    d['code'] = 200
+    d['message'] = 'sheduled'
+    return d
+    # ...
