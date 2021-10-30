@@ -1,7 +1,7 @@
 version: '3.6'
 
-networks:
-  airflow:
+# networks:
+#   airflow:
 
 services:
   service:
@@ -17,5 +17,39 @@ services:
       - ./src:/root/app/site-packages
     env_file:
       - .env
-    networks:
-      - airflow
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+    # networks:
+    #   - airflow
+
+  worker:
+    build: ./src/openapi_server/worker
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
+    volumes:
+      - ./src/openapi_server/worker:/usr/src/app
+      # - ./src/openapi_server/worker:/root/app/site-packages/worker
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - service
+      - redis
+
+  redis:
+    image: redis:6-alpine
+
+# dashboard:
+#   build: ./project
+#   command:  flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
+#   ports:
+#     - 5556:5555
+#   environment:
+#     - CELERY_BROKER_URL=redis://redis:6379/0
+#     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+#   depends_on:
+#     - web
+#     - redis
+#     - worker

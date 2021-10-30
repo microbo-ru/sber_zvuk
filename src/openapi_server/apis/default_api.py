@@ -22,6 +22,7 @@ from openapi_server.models.recognize_request import RecognizeRequest
 from openapi_server.models.recognize_response import RecognizeResponse
 import boto3
 import os
+from openapi_server.worker.worker import create_task
 
 router = APIRouter()
 
@@ -37,9 +38,10 @@ router = APIRouter()
 async def get_recognize_status(
     prefix: str = Path(None, description="Course ID"),
 ) -> RecognizeResponse:
+    task = create_task.delay(1)
     d = {}
     d['code'] = '200'
-    d['message'] = 'TBD'
+    d['message'] = task.id
     return d
 
 
