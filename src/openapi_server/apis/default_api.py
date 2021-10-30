@@ -29,8 +29,8 @@ from openapi_server.worker.worker import create_task
 import urllib.request
 from urllib.parse import urlparse
 
-
 router = APIRouter()
+
 
 @router.get(
     "/recognize/status/{prefix}",
@@ -42,13 +42,11 @@ router = APIRouter()
     summary="Returns recognition status &amp; results",
 )
 async def get_recognize_status(
-    prefix: str = Path(None, description="Course ID"),
+        prefix: str = Path(None, description="Course ID"),
 ) -> RecognizeResponse:
     task = create_task.delay(1)
-    d = {}
-    d['code'] = '200'
-    d['message'] = task.id
-    return d
+    result = {'code': '200', 'message': task.id}
+    return result
 
 
 def process_file(url, prefix):
@@ -67,12 +65,10 @@ def process_file(url, prefix):
     summary="Send a recognize request",
 )
 async def start_recognize(
-    body: RecognizeRequest = Body(None, description="Pet object that needs to be added to the store"),
+        body: RecognizeRequest = Body(None, description="Pet object that needs to be added to the store"),
 ) -> ApiResponse:
-
     process_file(body.source, body.prefix)
-    d = {}
-    d['code'] = 200
-    d['message'] = 'sheduled'
-    return d
+
+    result = {'code': 200, 'message': 'sheduled'}
+    return result
     # ...
