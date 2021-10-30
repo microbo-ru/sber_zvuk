@@ -1,0 +1,230 @@
+openapi: 3.0.1
+info:
+  description: SberZvuk API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://microbo.team/terms
+  title: Swagger Petstore
+  version: 1.0.0
+servers:
+- url: http://46.243.143.13/api/v1
+- url: https://46.243.143.13/api/v1
+paths:
+  /recognize:
+    post:
+      operationId: startRecognize
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecognizeRequest'
+        description: Pet object that needs to be added to the store
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+          description: successful operation
+        "405":
+          content: {}
+          description: Invalid input
+      summary: Send a recognize request
+      x-codegen-request-body-name: body
+  /recognize/status/{prefix}:
+    get:
+      operationId: getRecognizeStatus
+      parameters:
+      - description: Course ID
+        explode: false
+        in: path
+        name: prefix
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecognizeResponse'
+          description: successful operation
+        "404":
+          content: {}
+          description: Not found
+      summary: Returns recognition status & results
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    RecognizeRequest:
+      example:
+        prefix: prefix
+        source: https://openapi-generator.tech
+      properties:
+        source:
+          description: Video file location address, S3-like is expected
+          format: uri
+          type: string
+        prefix:
+          description: Predefined prefix for the results
+          type: string
+      required:
+      - prefix
+      - source
+      type: object
+    RecognizeResponse:
+      example:
+        code: code
+        audioResult:
+          result:
+          - time_start: 0.8008281904610115
+            time_end: 6.027456183070403
+          - time_start: 0.8008281904610115
+            time_end: 6.027456183070403
+        videoResult:
+          result:
+          - time_start: 1.4658129805029452
+            corner_2:
+            - 2.3021358869347655
+            - 2.3021358869347655
+            corner_1:
+            - 5.637376656633329
+            - 5.637376656633329
+            time_end: 5.962133916683182
+          - time_start: 1.4658129805029452
+            corner_2:
+            - 2.3021358869347655
+            - 2.3021358869347655
+            corner_1:
+            - 5.637376656633329
+            - 5.637376656633329
+            time_end: 5.962133916683182
+        message: message
+        status: submitted
+      properties:
+        code:
+          description: Response code
+          title: code
+          type: string
+        status:
+          enum:
+          - submitted
+          - started
+          - completed
+          title: status
+          type: string
+        message:
+          title: message
+          type: string
+        audioResult:
+          $ref: '#/components/schemas/AudioResult'
+        videoResult:
+          $ref: '#/components/schemas/VideoResult'
+      title: RecognizeResponse
+      type: object
+    AudioResult:
+      example:
+        result:
+        - time_start: 0.8008281904610115
+          time_end: 6.027456183070403
+        - time_start: 0.8008281904610115
+          time_end: 6.027456183070403
+      properties:
+        result:
+          items:
+            $ref: '#/components/schemas/FoundAudioFragment'
+          title: result
+          type: array
+      title: AudioResult
+      type: object
+    FoundAudioFragment:
+      example:
+        time_start: 0.8008281904610115
+        time_end: 6.027456183070403
+      properties:
+        time_start:
+          title: time_start
+          type: number
+        time_end:
+          title: time_end
+          type: number
+      title: FoundAudioFragment
+      type: object
+    VideoResult:
+      example:
+        result:
+        - time_start: 1.4658129805029452
+          corner_2:
+          - 2.3021358869347655
+          - 2.3021358869347655
+          corner_1:
+          - 5.637376656633329
+          - 5.637376656633329
+          time_end: 5.962133916683182
+        - time_start: 1.4658129805029452
+          corner_2:
+          - 2.3021358869347655
+          - 2.3021358869347655
+          corner_1:
+          - 5.637376656633329
+          - 5.637376656633329
+          time_end: 5.962133916683182
+      properties:
+        result:
+          items:
+            $ref: '#/components/schemas/FoundVideoFragment'
+          title: result
+          type: array
+      title: VideoResult
+      type: object
+    FoundVideoFragment:
+      example:
+        time_start: 1.4658129805029452
+        corner_2:
+        - 2.3021358869347655
+        - 2.3021358869347655
+        corner_1:
+        - 5.637376656633329
+        - 5.637376656633329
+        time_end: 5.962133916683182
+      properties:
+        time_start:
+          title: time_start
+          type: number
+        time_end:
+          title: time_end
+          type: number
+        corner_1:
+          items:
+            type: number
+          title: corner_1
+          type: array
+        corner_2:
+          items:
+            type: number
+          title: corner_2
+          type: array
+      title: FoundVideoFragment
+      type: object
+    ApiResponse:
+      example:
+        code: 0
+        type: type
+        message: message
+      properties:
+        code:
+          format: int32
+          title: code
+          type: integer
+        type:
+          title: type
+          type: string
+        message:
+          title: message
+          type: string
+      title: ApiResponse
+      type: object
