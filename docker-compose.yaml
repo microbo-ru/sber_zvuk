@@ -11,6 +11,8 @@ services:
     ports:
       - "80:8080"
     command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080
+    volumes:
+      - ./:/app
     networks:
       - airflow
 
@@ -53,7 +55,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./airflow_files/dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./files:/opt/airflow/files
       - /var/run/docker.sock:/var/run/docker.sock
@@ -100,7 +102,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./airflow_files/dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./files:/opt/airflow/files
       - /var/run/docker.sock:/var/run/docker.sock
@@ -120,7 +122,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./airflow_files/dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./files:/opt/airflow/files
       - /var/run/docker.sock:/var/run/docker.sock
@@ -140,7 +142,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./airflow_files/dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./files:/opt/airflow/files
       - /var/run/docker.sock:/var/run/docker.sock
@@ -160,7 +162,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./airflow_files/dags:/opt/airflow/dags
+      - ./airflow/dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./files:/opt/airflow/files
       - /var/run/docker.sock:/var/run/docker.sock
