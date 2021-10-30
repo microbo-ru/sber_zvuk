@@ -15,5 +15,7 @@ services:
     volumes:
       # - ./src:/usr/src
       - ./src:/root/app/site-packages
+    env_file:
+      - .env
     networks:
       - airflow
