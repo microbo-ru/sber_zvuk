@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    Swagger Petstore
+    Swagger SberZvuk
 
     SberZvuk API
 
@@ -17,7 +17,7 @@ from openapi_server.apis.s3_api import router as S3ApiRouter
 # from worker import create_task
 
 app = FastAPI(
-    title="Swagger Petstore",
+    title="Swagger SberZvuk",
     description="SberZvuk API",
     version="1.0.0",
 )

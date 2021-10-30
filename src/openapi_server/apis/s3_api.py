@@ -46,7 +46,7 @@ def check_s3():
         200: {"model": FileResponse, "description": "successful operation"},
         404: {"description": "Not found"},
     },
-    tags=["s3"],
+    tags=["Test"],
     summary="Returns recognition status &amp; results",
 )
 async def get_files(
