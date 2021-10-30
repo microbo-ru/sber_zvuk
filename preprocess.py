@@ -6,7 +6,7 @@ def split(video_path, save_path):
     original_video = VideoFileClip(video_path)
 
     audio_clip = original_video.audio
-    audio_clip.write_audiofile(os.path.join(save_path, "extracted_audio.mp3"))
+    audio_clip.write_audiofile(os.path.join(save_path, "extracted_audio.wav"), codec='pcm_s16le')
     audio_clip.close()
 
     muted_video = original_video.without_audio()
@@ -26,7 +26,4 @@ def combine(video_path, audio_path):
     audio_clip.close()
     video_clip.close()
 
-path = "D:/Загрузки/SampleVideo.mp4"
-
-# split(path)
-#combine("extracted_video.mp4", "extracted_audio.mp3")
+# split("D:/Загрузки/hackathon_part_1.mp4", "D:/datasets/")

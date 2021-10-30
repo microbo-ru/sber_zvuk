@@ -35,26 +35,24 @@ def get_frames(video_path, frames_save_path):
     print(f"{counter} frames saved")
     video_clip.close()
 
-    #build JSON-file
-    data = {"name" : video_name,
-            "duration" : video_duration,
-            "fps" : video_fps,
-            "number_of_frames" : counter}
+    # build JSON-file
+    data = {"name": video_name,
+            "duration": video_duration,
+            "fps": video_fps,
+            "number_of_frames": counter}
     with open(os.path.join(frames_save_path, "metadata.json"), "w") as file:
         json.dump(data, file)
-
 
 
 def combine_frames(frames_path, save_path, video_file_name, fps=25):
     files = [f for f in os.listdir(frames_path) if os.path.isfile(os.path.join(frames_path, f))]
     # sort by frame pos
     files.sort(key=lambda x: int(x.split("_")[-2]))
-    clips = [ImageClip(os.path.join(frames_path,m)).set_duration(1/fps)
+    clips = [ImageClip(os.path.join(frames_path, m)).set_duration(1 / fps)
              for m in files]
 
     concat_clip = concatenate_videoclips(clips, method="compose")
     concat_clip.write_videofile(os.path.join(save_path, f"{video_file_name}.mp4"), fps=fps)
 
-
-#get_frames("D:/Загрузки/SampleVideo.mp4", "D:/datasets/sber_zvuk_samples")
-#combine_frames("D:/datasets/sber_zvuk_samples", "D:/datasets/")
+# get_frames("D:/Загрузки/SampleVideo.mp4", "D:/datasets/sber_zvuk_samples")
+# combine_frames("D:/datasets/sber_zvuk_samples", "D:/datasets/")
