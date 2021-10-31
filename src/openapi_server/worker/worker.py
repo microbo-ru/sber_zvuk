@@ -12,7 +12,7 @@ import os
 
 # from moviepy.editor import *
 
-from preprocess import split_video
+from preprocess import split_video, combine_video
 from pathlib import Path
 
 celery = Celery(__name__)
@@ -20,7 +20,7 @@ celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 logger = get_task_logger(__name__)
 
-def load_file_to_s3(file_name, prefix):
+def load_file_to_s3(output_dir_path, file_name, prefix):
     session = boto3.session.Session()
     s3 = session.client(
         service_name='s3',
@@ -30,23 +30,7 @@ def load_file_to_s3(file_name, prefix):
         use_ssl=False,
         verify=False
     )
-    res =s3.upload_file(f'/root/app/store/{prefix}_{file_name}', 'hackathon-ecs-50', f'{prefix}_{file_name}')
-    logger.info(f'S3 loading: {res}')
-
-# def split1(video_path, prefix, out_dir):
-#     logger.info(f'{video_path} {prefix} {out_dir}')
-    # original_video = VideoFileClip(video_path)
-
-    # audio_clip = original_video.audio
-    # audio_clip.write_audiofile(os.path.join(out_dir, f'{prefix}_extracted_audio.wav'), codec='pcm_s16le')
-    # audio_clip.close()
-
-    # muted_video = original_video.without_audio()
-    # muted_video.write_videofile(os.path.join(out_dir, f'{prefix}_extracted_video.mp4'))
-
-    # original_video.close()
-    # muted_video.close()
-
+    res =s3.upload_file(f'{output_dir_path}/{prefix}_{file_name}', 'hackathon-ecs-50', f'{prefix}_{file_name}')
 
 @celery.task(name="process_file")
 def process_file(url, prefix):
@@ -60,13 +44,23 @@ def process_file(url, prefix):
     logger.info(input_file_stem)
     urllib.request.urlretrieve(url, input_file_path)
 
-    logger.info(f'Start Fraiming:')
+    logger.info(f'Start Framing:')
+
     output_dir_path = f'/root/app/store/dir_{prefix}_{input_file_stem}'
     Path(output_dir_path).mkdir(parents=True, exist_ok=True)
-    logger.info(f'Before splitting')
-    split_video(input_file_path, prefix, output_dir_path)
-    logger.info(f'Finish Fraiming:')
 
-    load_file_to_s3(file_name, prefix)
+    logger.info(f'Start splitting')
+    split_video(input_file_path, prefix, output_dir_path)
+    logger.info(f'Finish Framing:')
+
+    logger.info(f'Start combining')
+    res_video_file_path = f'{output_dir_path}/{prefix}_extracted_video.mp4'
+    res_audio_file_path = f'{output_dir_path}/{prefix}_extracted_audio.wav'
+    res_video_combined = f'{output_dir_path}/{prefix}_{file_name}'
+    combine_video(res_video_file_path, res_audio_file_path, res_video_combined)
+    logger.info(f'Finish combining')
+
+    logger.info(f'Start loading to s3:')
+    load_file_to_s3(output_dir_path, file_name, prefix)
     logger.info(f'Finish Processing:')
     return True
