@@ -35,7 +35,6 @@ def get_frames(video_path, frames_save_path):
     print(f"{counter} frames saved")
     video_clip.close()
 
-
     # build JSON-file
     data = {"name": video_name,
             "duration": video_duration,
@@ -44,7 +43,6 @@ def get_frames(video_path, frames_save_path):
 
     with open(os.path.join(frames_save_path, "metadata.json"), "w") as file:
         json.dump(data, file)
-
 
 
 def combine_frames(frames_path, save_path, video_file_name, fps=25):
