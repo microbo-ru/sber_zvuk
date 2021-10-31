@@ -10,9 +10,10 @@ from urllib.parse import urlparse
 import boto3
 import os
 
-from moviepy.editor import *
+# from moviepy.editor import *
 
-from preprocess import split
+from preprocess import split_video
+from pathlib import Path
 
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
@@ -32,6 +33,21 @@ def load_file_to_s3(file_name, prefix):
     res =s3.upload_file(f'/root/app/store/{prefix}_{file_name}', 'hackathon-ecs-50', f'{prefix}_{file_name}')
     logger.info(f'S3 loading: {res}')
 
+# def split1(video_path, prefix, out_dir):
+#     logger.info(f'{video_path} {prefix} {out_dir}')
+    # original_video = VideoFileClip(video_path)
+
+    # audio_clip = original_video.audio
+    # audio_clip.write_audiofile(os.path.join(out_dir, f'{prefix}_extracted_audio.wav'), codec='pcm_s16le')
+    # audio_clip.close()
+
+    # muted_video = original_video.without_audio()
+    # muted_video.write_videofile(os.path.join(out_dir, f'{prefix}_extracted_video.mp4'))
+
+    # original_video.close()
+    # muted_video.close()
+
+
 @celery.task(name="process_file")
 def process_file(url, prefix):
     logger.info(f'Start Processing:')
@@ -39,11 +55,17 @@ def process_file(url, prefix):
 
     a = urlparse(url)
     file_name = os.path.basename(a.path)
-    urllib.request.urlretrieve(url, f'/root/app/store/{prefix}_{file_name}')
+    input_file_path = f'/root/app/store/{prefix}_{file_name}'
+    input_file_stem = Path(input_file_path).stem
+    logger.info(input_file_stem)
+    urllib.request.urlretrieve(url, input_file_path)
 
-    logger.info(f'Start Framing:')
-    #todo:
-    logger.info(f'Finish Framing:')
+    logger.info(f'Start Fraiming:')
+    output_dir_path = f'/root/app/store/dir_{prefix}_{input_file_stem}'
+    Path(output_dir_path).mkdir(parents=True, exist_ok=True)
+    logger.info(f'Before splitting')
+    split_video(input_file_path, prefix, output_dir_path)
+    logger.info(f'Finish Fraiming:')
 
     load_file_to_s3(file_name, prefix)
     logger.info(f'Finish Processing:')
