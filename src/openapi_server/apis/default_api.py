@@ -35,18 +35,18 @@ router = APIRouter()
 
 
 @router.get(
-    "/recognize/status/{prefix}",
+    "/recognize/{taskid}",
     responses={
         200: {"model": RecognizeResponse, "description": "successful operation"},
         404: {"description": "Not found"},
     },
     tags=["default"],
-    summary="Returns recognition status &amp; results",
+    summary="Returns recognition status by taskid",
 )
 async def get_recognize_status(
-        prefix: str = Path(None, description="Task Id"),
+        taskid: str = Path(None, description="Task Id"),
 ) -> RecognizeResponse:
-    res = AsyncResult(prefix, app=celery)
+    res = AsyncResult(taskid, app=celery)
     result = {'code': '200', 'message': res.state}
     return result
 
