@@ -23,9 +23,11 @@ from openapi_server.models.recognize_response import RecognizeResponse
 import boto3
 import os
 
-from openapi_server.worker.worker import create_task
+from openapi_server.worker.worker import process_file
+from openapi_server.worker.worker import celery
 
-# import urllib
+from celery.result import AsyncResult
+
 import urllib.request
 from urllib.parse import urlparse
 
@@ -44,10 +46,6 @@ router = APIRouter()
 async def get_recognize_status(
         prefix: str = Path(None, description="Task Id"),
 ) -> RecognizeResponse:
-    # task = create_task.delay(1)
-    # result = {'code': '200', 'message': task.id}
-    # return result
-    # ...
     res = AsyncResult(prefix, app=celery)
     result = {'code': '200', 'message': res.state}
     return result
@@ -70,8 +68,7 @@ def submit_task(url, prefix):
 async def start_recognize(
         body: RecognizeRequest = Body(None, description="Pet object that needs to be added to the store"),
 ) -> ApiResponse:
-    process_file(body.source, body.prefix)
+    task_id = submit_task(body.source, body.prefix)
 
     result = {'code': 200, 'message': task_id}
     return result
-    # ...
