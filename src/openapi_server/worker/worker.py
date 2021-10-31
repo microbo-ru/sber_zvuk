@@ -25,7 +25,7 @@ def load_file_to_s3(file_name, prefix):
         use_ssl=False,
         verify=False
     )
-    res =s3.upload_file(f'/root/app/store/{prefix}_{file_name}', 'hackathon-ecs-50', {prefix}_{file_name})
+    res =s3.upload_file(f'/root/app/store/{prefix}_{file_name}', 'hackathon-ecs-50', f'{prefix}_{file_name}')
     logger.info(f'S3 loading: {res}')
 
 @celery.task(name="process_file")
