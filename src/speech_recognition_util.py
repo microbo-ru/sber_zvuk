@@ -1,11 +1,13 @@
 import speech_recognition as speech_recog
 import json
 from pydub import AudioSegment
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import os
 
 CELEBRITY_DICTIONARY_PATH = os.environ.get(
-    'CELEBRITY_DICTIONARY_PATH', "src/celebrities_names.txt")
-SR_SLIDINGWINDOW_SEC = os.environ.get('SR_SLIDINGWINDOW_SEC', 2)
+    'CELEBRITY_DICTIONARY_PATH', "C:/Users/Ilya/PycharmProjects/sber_zvuk/src/celebrities_names.txt")
+SR_SLIDINGWINDOW_SEC = os.environ.get('SR_SLIDINGWINDOW_SEC', 3)
 SR_SHIFT_SEC = os.environ.get('SR_SHIFT_SEC', 1)
 
 
@@ -84,16 +86,24 @@ def join_time_intervals(transcript_list):
     return new_transcript
 
 
-def search_celebrities(content, celebrity_list):
+def search_celebrities2(content, celebrity_list):
     found_text = content.strip().lower()
     for celeb in celebrity_list:
         if celeb in found_text:
             return True
 
 
+def search_celebrities(content, celebrity_list):
+    found_text = content.strip().lower()
+    for celeb in celebrity_list:
+        if fuzz.partial_ratio(found_text, celeb) > 0.9:
+            return True
+
+
 def mute_audio_interval(transcript_json_path,
                         original_audio_path,
                         audio_save_dir, prefix='test'):
+
     # don't work
     with open(transcript_json_path) as json_data:
         intervals = json.load(json_data)
@@ -101,27 +111,55 @@ def mute_audio_interval(transcript_json_path,
     save_path = os.path.join(audio_save_dir, f"{prefix}_final_audio.wav")
     sound = AudioSegment.from_file(original_audio_path, format="wav")
 
+    new_sound = AudioSegment.empty()
+    last_time_end = 0
+
+    print(f'New sound len: {len(new_sound)}')
+
     for timestamps in intervals['result']:
         time_start = timestamps['time_start']
         time_end = timestamps['time_end']
 
         print(f'Mute audio: {time_start} - {time_end}')
 
+        before = sound[last_time_end * 1000 : time_start * 1000]
+
+        #after = sound[time_end * 1000:]
+        print(f'New sound len: {len(new_sound)}')
+        print(f'Before len: {len(before)}')
+        if len(new_sound) == 0:
+            new_sound = before
+        else:
+            new_sound = new_sound.append(before)
+
+        print(f'New sound len (before applied): {len(new_sound)}')
+
         duration_ms = (time_end - time_start) * 1000
         silence = AudioSegment.silent(duration = duration_ms)
-        sound = sound.overlay(silence, position=time_start * 1000)
 
+        new_sound = new_sound.append(silence)
+        print(f'Silence len: {len(silence)}')
+        print(f'New sound len (Silence applied): {len(new_sound)}')
+        #new_sound = new_sound.append(after)
+        last_time_end = time_end
 
-
+        #sound = sound.overlay(silence, position=time_start * 1000)
+        #sound = sound.fade(to_gain=0, start=time_start * 1000, duration = duration_ms)
         #new_sound = sound.fade(to_gain=-100,
         #                       start=time_start * 1000,
         #                       duration=(time_end - time_start + 1) * 1000)
 
-    sound.export(save_path, format='wav', bitrate="192k")
+    rest = sound[last_time_end * 1000:]
+    print(f'Rest len: {len(rest)}')
+
+    new_sound = new_sound.append(rest)
+    print(f'New sound len (total): {len(new_sound)}')
+
+    new_sound.export(save_path, format='wav', bitrate="192k")
 
     # sound.export(save_path, format='wav', bitrate="192k")
 
 
-# get_transcript("D:/datasets/extracted_audio.wav", 198)
+#get_transcript("D:/datasets/h_extracted_audio.wav", 198, '../test_audio.json')
 
-mute_audio_interval('test_audio.json', 'D:/datasets/extracted_audio.wav', 'D:/datasets/')
+mute_audio_interval('../test_audio.json', 'D:/datasets/h_extracted_audio.wav', 'D:/datasets/')
