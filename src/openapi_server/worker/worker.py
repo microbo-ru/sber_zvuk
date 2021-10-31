@@ -7,6 +7,9 @@ from celery.utils.log import get_task_logger
 import urllib.request
 from urllib.parse import urlparse
 
+import boto3
+import os
+
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
@@ -20,4 +23,6 @@ def process_file(url, prefix):
     a = urlparse(url)
     file_name = os.path.basename(a.path)
     urllib.request.urlretrieve(url, f'/root/app/store/{prefix}_{file_name}')
+
+
     return True
