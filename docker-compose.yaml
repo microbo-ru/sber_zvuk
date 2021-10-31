@@ -8,18 +8,20 @@ services:
     build:
       context: .
       # dockerfile: Dockerfile
-      target: service
+      # target: service
     ports:
       - "80:8080"
     command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080 --reload
     volumes:
-      - ./src:/root/app/site-packages
+      # - ./src:/root/app/site-packages
+      - ./src:/usr/src/app
       - file-storage:/root/app/store
     env_file:
       - .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/usr/src/app/openapi_server/worker:${PYTHONPATH}
     depends_on:
       - redis
     # networks:
@@ -45,22 +47,22 @@ services:
   redis:
     image: redis:6-alpine
 
-  flower:
-    build:
-      context: .
-      dockerfile: Dockerfile_worker
-    command: celery flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
-    volumes:
-      - ./src/openapi_server/worker:/usr/src/app
-    ports:
-      - 5555:5555
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    depends_on:
-      - service
-      - redis
-      - worker
+  # flower:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile_worker
+  #   command: celery flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
+  #   volumes:
+  #     - ./src/openapi_server/worker:/usr/src/app
+  #   ports:
+  #     - 5555:5555
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   depends_on:
+  #     - service
+  #     - redis
+  #     - worker
 
 volumes:
     file-storage:
