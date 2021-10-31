@@ -44,18 +44,22 @@ services:
   redis:
     image: redis:6-alpine
 
-# dashboard:
-#   build: ./project
-#   command:  flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
-#   ports:
-#     - 5556:5555
-#   environment:
-#     - CELERY_BROKER_URL=redis://redis:6379/0
-#     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-#   depends_on:
-#     - web
-#     - redis
-#     - worker
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile_worker
+    command: celery flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
+    volumes:
+      - ./src/openapi_server/worker:/usr/src/app
+    ports:
+      - 5555:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - service
+      - redis
+      - worker
 
 volumes:
     file-storage:
