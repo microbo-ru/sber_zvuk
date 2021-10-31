@@ -63,6 +63,7 @@
           <option value="int.__getitem__" />
           <option value="dict.add" />
           <option value="dict.remove" />
+          <option value="speech_recognition" />
         </list>
       </option>
     </inspection_tool>
