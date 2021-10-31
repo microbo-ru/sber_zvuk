@@ -34,3 +34,4 @@ def combine_video(video_path, audio_path, res_combined):
 
     audio_clip.close()
     video_clip.close()
+

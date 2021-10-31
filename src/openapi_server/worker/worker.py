@@ -13,6 +13,8 @@ import os
 # from moviepy.editor import *
 
 from preprocess import split_video, combine_video
+from frame_utils import save_frame, get_frames, combine_frames, detect_celebs
+
 from pathlib import Path
 
 celery = Celery(__name__)
@@ -45,14 +47,23 @@ def process_file(url, prefix):
     # logger.info(input_file_stem)
     urllib.request.urlretrieve(url, input_file_path)
 
-    logger.info(f'Start Framing:')
+    
 
     output_dir_path = f'/root/app/store/{prefix}'
     Path(output_dir_path).mkdir(parents=True, exist_ok=True)
 
     logger.info(f'Start splitting')
-    split_video('input.mp4', output_dir_path)
-    logger.info(f'Finish Framing:')
+    split_video('input.mp4', output_dir_path) #-> extracted.mp4 wav
+    logger.info(f'Finish splitting')
+
+    logger.info(f'Start framing')
+    Path(f'{output_dir_path}/images').mkdir(parents=True, exist_ok=True)
+    get_frames(f'{output_dir_path}/extracted.mp4', f'{output_dir_path}/images')
+    logger.info(f'Finish framing')
+
+    logger.info(f'Start detection')
+    detect_celebs(f'{output_dir_path}/images')
+    logger.info(f'End detection')
 
     logger.info(f'Start combining')
     res_video_file_path = f'{output_dir_path}/extracted.mp4'
