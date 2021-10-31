@@ -1,5 +1,7 @@
 import speech_recognition as speech_recog
 import json
+from pydub import AudioSegment
+import os
 
 
 def get_celebrities_list(path_to_list):
@@ -22,9 +24,9 @@ def get_transcript(audio_file_path, audio_duration, prefix='test'):
             try:
                 result = recognizer.recognize_google(audio_content, language='ru-RU')
                 if search_celebrities(result, celeb_list):
-                    print(f"{result}_{float(i)}_{float(i+dur)}")
-                    transcript_list.append({"time_start": float(i),
-                                            "time_end": float(i + dur)})
+                    print(f"{result}_{float(i)}_{float(i + dur)}")
+                    transcript_list.append({"time_start": i,
+                                            "time_end": i + dur})
             except speech_recog.UnknownValueError:
                 continue
     transcript_list = join_time_interval(transcript_list)
@@ -57,4 +59,24 @@ def search_celebrities(content, celebrity_list):
             return True
 
 
-get_transcript("D:/datasets/extracted_audio.wav", 198)
+def mute_audio_interval(transcript_json_path, original_audio_path, audio_save_dir, prefix='test'):
+    #don't work
+    with open(transcript_json_path) as json_data:
+        intervals = json.load(json_data)
+
+    save_path = os.path.join(audio_save_dir, f"{prefix}_final_audio.wav")
+    sound = AudioSegment.from_file(original_audio_path)
+
+    for timestamps in intervals['result']:
+        time_start = timestamps['time_start']
+        time_end = timestamps['time_end']
+        print(time_start, time_end)
+        new_sound = sound.fade(to_gain=-100, start=time_start * 1000, duration=(time_end-time_start+1) * 1000 )
+        new_sound.export(save_path, format='wav', bitrate="192k")
+
+    #sound.export(save_path, format='wav', bitrate="192k")
+
+
+# get_transcript("D:/datasets/extracted_audio.wav", 198)
+
+mute_audio_interval('test_audio.json', 'D:/datasets/extracted_audio.wav', 'D:/datasets/')
