@@ -33,6 +33,8 @@ services:
     volumes:
       - ./src/openapi_server/worker:/usr/src/app
       - file-storage:/root/app/store
+    env_file:
+      - .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
