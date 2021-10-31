@@ -13,7 +13,6 @@ services:
       - "80:8080"
     command: uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080 --reload
     volumes:
-      # - ./src:/usr/src
       - ./src:/root/app/site-packages
       - file-storage:/root/app/store
     env_file:
@@ -31,7 +30,7 @@ services:
     command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./src/openapi_server/worker:/usr/src/app
-      # - ./src/openapi_server/worker:/root/app/site-packages/worker
+      - file-storage:/root/app/store
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
