@@ -22,20 +22,39 @@ def get_transcript(audio_file_path, audio_duration, prefix='test'):
             try:
                 result = recognizer.recognize_google(audio_content, language='ru-RU')
                 if search_celebrities(result, celeb_list):
-                    print(result)
+                    print(f"{result}_{float(i)}_{float(i+dur)}")
                     transcript_list.append({"time_start": float(i),
                                             "time_end": float(i + dur)})
             except speech_recog.UnknownValueError:
                 continue
+    transcript_list = join_time_interval(transcript_list)
     with open(f"{prefix}_audio.json", 'w') as f:
         json.dump({"result": transcript_list}, f)
     return transcript_list
 
 
+def join_time_interval(transcript_list):
+    last_start = 0
+    last_end = -1
+    new_transcript = list()
+    for row in transcript_list:
+        if last_end >= row['time_start']:
+            last_end = row['time_end']
+        else:
+            if last_end != -1:
+                new_transcript.append({"time_start": last_start,
+                                       "time_end": last_end})
+            last_end = row['time_end']
+            last_start = row['time_start']
+    new_transcript.append({"time_start": last_start,
+                           "time_end": last_end})
+    return new_transcript
+
+
 def search_celebrities(content, celebrity_list):
     for celeb in celebrity_list:
         if celeb in content:
-            print(celeb, celebrity_list)
             return True
 
-# get_transcript("D:/datasets/extracted_audio.wav", 198)
+
+get_transcript("D:/datasets/extracted_audio.wav", 198)
