@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir .
 RUN pip install boto3
 RUN pip install celery==4.4.7
 RUN pip install redis==3.5.3
+RUN pip install moviepy~=1.0.3
+RUN pip install deepface==0.0.68
+RUN pip install SpeechRecognition==3.8.1
 
 
 FROM python:3.7 AS test_runner

@@ -10,6 +10,8 @@ from urllib.parse import urlparse
 import boto3
 import os
 
+from moviepy.editor import *
+
 from preprocess import split, combine
 
 celery = Celery(__name__)
