@@ -8,16 +8,17 @@ from celery.utils.log import get_task_logger
 
 logger = get_task_logger(__name__)
 
-def split_video(video_path, prefix, out_dir):
-    logger.info(f'{video_path} {prefix} {out_dir}')
+def split_video(filename, out_dir):
+    # logger.info(f'{video_path} {prefix} {out_dir}')
+    video_path = f'{out_dir}/{filename}'
     original_video = VideoFileClip(video_path)
 
     audio_clip = original_video.audio
-    audio_clip.write_audiofile(os.path.join(out_dir, f'{prefix}_extracted_audio.wav'), codec='pcm_s16le')
+    audio_clip.write_audiofile(os.path.join(out_dir, f'extracted.wav'), codec='pcm_s16le')
     audio_clip.close()
 
     muted_video = original_video.without_audio()
-    muted_video.write_videofile(os.path.join(out_dir, f'{prefix}_extracted_video.mp4'))
+    muted_video.write_videofile(os.path.join(out_dir, f'extracted.mp4'))
 
     original_video.close()
     muted_video.close()

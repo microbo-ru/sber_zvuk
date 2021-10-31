@@ -20,7 +20,7 @@ celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 logger = get_task_logger(__name__)
 
-def load_file_to_s3(output_dir_path, file_name, prefix):
+def load_file_to_s3(res_video_combined, prefix):
     session = boto3.session.Session()
     s3 = session.client(
         service_name='s3',
@@ -30,7 +30,7 @@ def load_file_to_s3(output_dir_path, file_name, prefix):
         use_ssl=False,
         verify=False
     )
-    res =s3.upload_file(f'{output_dir_path}/{prefix}_{file_name}', 'hackathon-ecs-50', f'{prefix}_{file_name}')
+    res =s3.upload_file(res_video_combined, 'hackathon-ecs-50', f'{prefix}_result.mp4')
 
 @celery.task(name="process_file")
 def process_file(url, prefix):
@@ -39,28 +39,30 @@ def process_file(url, prefix):
 
     a = urlparse(url)
     file_name = os.path.basename(a.path)
-    input_file_path = f'/root/app/store/{prefix}_{file_name}'
+    Path(f'/root/app/store/{prefix}').mkdir(parents=True, exist_ok=True)
+    input_file_path = f'/root/app/store/{prefix}/input.mp4'
     input_file_stem = Path(input_file_path).stem
-    logger.info(input_file_stem)
+    # logger.info(input_file_stem)
     urllib.request.urlretrieve(url, input_file_path)
 
     logger.info(f'Start Framing:')
 
-    output_dir_path = f'/root/app/store/dir_{prefix}_{input_file_stem}'
+    output_dir_path = f'/root/app/store/{prefix}'
     Path(output_dir_path).mkdir(parents=True, exist_ok=True)
 
     logger.info(f'Start splitting')
-    split_video(input_file_path, prefix, output_dir_path)
+    split_video('input.mp4', output_dir_path)
     logger.info(f'Finish Framing:')
 
     logger.info(f'Start combining')
-    res_video_file_path = f'{output_dir_path}/{prefix}_extracted_video.mp4'
-    res_audio_file_path = f'{output_dir_path}/{prefix}_extracted_audio.wav'
-    res_video_combined = f'{output_dir_path}/{prefix}_{file_name}'
+    res_video_file_path = f'{output_dir_path}/extracted.mp4'
+    res_audio_file_path = f'{output_dir_path}/extracted.wav'
+    res_video_combined = f'{output_dir_path}/combined.mp4'
     combine_video(res_video_file_path, res_audio_file_path, res_video_combined)
     logger.info(f'Finish combining')
 
     logger.info(f'Start loading to s3:')
-    load_file_to_s3(output_dir_path, file_name, prefix)
+    # local_file_path = f'{output_dir_path}/{prefix}/combined.mp4'
+    load_file_to_s3(res_video_combined, prefix)
     logger.info(f'Finish Processing:')
     return True
