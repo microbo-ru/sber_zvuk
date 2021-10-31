@@ -1,0 +1,27 @@
+# pull official base image
+FROM python:3.7
+
+# set work directory
+WORKDIR /usr/src/app
+
+RUN apt-get update
+# RUN apt-get install ffmpeg libsm6 libxext6 libgl1-mesa-glx -y
+# RUN apt-get install -y ffmpeg libsm6 libxext6 libxrender-dev libomp-dev libgl1-mesa-glx
+
+RUN apt-get install -y libgl1-mesa-dev
+
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements_worker.txt .
+RUN pip install -r requirements_worker.txt
+
+RUN pip install watchdog
+RUN pip install pyyaml
+
+# copy project
+COPY . .

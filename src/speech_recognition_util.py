@@ -55,6 +55,29 @@ def get_transcript(inputaudio_file_path, audio_duration_sec, audio_json_file_pat
     return transcript_list
 
 
+def get_transcript(audio_file_path, audio_duration, prefix='test'):
+    sample_audio = speech_recog.AudioFile(audio_file_path)
+    recognizer = speech_recog.Recognizer()
+    transcript_list = list()
+    celeb_list = get_celebrities_list("src/celebrities_names.txt")
+    dur = 2
+    for i in range(int(audio_duration) - 1):
+        with sample_audio as audio_file:
+            audio_content = recognizer.record(audio_file, offset=i, duration=dur)
+            try:
+                result = recognizer.recognize_google(audio_content, language='ru-RU')
+                if search_celebrities(result, celeb_list):
+                    print(f"{result}_{float(i)}_{float(i+dur)}")
+                    transcript_list.append({"time_start": float(i),
+                                            "time_end": float(i + dur)})
+            except speech_recog.UnknownValueError:
+                continue
+    transcript_list = join_time_interval(transcript_list)
+    with open(f"{prefix}_audio.json", 'w') as f:
+        json.dump({"result": transcript_list}, f)
+    return transcript_list
+
+
 def join_time_intervals(transcript_list):
     firstRow = transcript_list[0]
     last_start = firstRow['time_start']
