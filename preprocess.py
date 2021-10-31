@@ -6,8 +6,10 @@ def split(video_path, save_path):
     original_video = VideoFileClip(video_path)
 
     audio_clip = original_video.audio
-    audio_clip.write_audiofile(os.path.join(save_path, "extracted_audio.wav"), \
-                               codec='pcm_s16le')
+    audio_clip.write_audiofile(
+        os.path.join(save_path, "extracted_audio.wav"),
+        codec='pcm_s16le')
+
     audio_clip.close()
 
     muted_video = original_video.without_audio()
