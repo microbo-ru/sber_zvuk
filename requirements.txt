@@ -35,11 +35,11 @@ uvloop==0.14.0
 watchgod==0.7
 websockets==8.1
 
-opencv-python~=4.5.4.58
-moviepy~=1.0.3
-Pillow~=8.3.2
+#opencv-python~=4.5.4.58
+#moviepy~=1.0.3
+#Pillow~=8.3.2
 
-SpeechRecognition==3.8.1
+
 
 
 boto3==1.19.7

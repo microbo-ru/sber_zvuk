@@ -16,3 +16,5 @@ moviepy~=1.0.3
 Pillow~=8.3.2
 
 deepface==0.0.68
+
+SpeechRecognition==3.8.1
