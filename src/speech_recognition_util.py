@@ -8,6 +8,7 @@ CELEBRITY_DICTIONARY_PATH = os.environ.get(
 SR_SLIDINGWINDOW_SEC = os.environ.get('SR_SLIDINGWINDOW_SEC', 2)
 SR_SHIFT_SEC = os.environ.get('SR_SHIFT_SEC', 1)
 
+
 # Michael Jakson = Jakson Michael
 def reverse_celeb_name(name):
     # splitting the string on space
@@ -17,6 +18,7 @@ def reverse_celeb_name(name):
     # joining the words and printing
     result = " ".join(words)
     return result
+
 
 # Returns a list of Celebrities from the dictionary provided
 def get_celebrities_list(path_to_list):
@@ -29,6 +31,7 @@ def get_celebrities_list(path_to_list):
         celeb_names.append(name)
         celeb_names.append(reversed)
     return celeb_names
+
 
 def get_transcript(inputaudio_file_path,
                    audio_duration_sec,
@@ -59,6 +62,7 @@ def get_transcript(inputaudio_file_path,
         json.dump({"result": transcript_list}, f)
 
     return transcript_list
+
 
 def join_time_intervals(transcript_list):
     firstRow = transcript_list[0]
@@ -95,18 +99,25 @@ def mute_audio_interval(transcript_json_path,
         intervals = json.load(json_data)
 
     save_path = os.path.join(audio_save_dir, f"{prefix}_final_audio.wav")
-    sound = AudioSegment.from_file(original_audio_path)
+    sound = AudioSegment.from_file(original_audio_path, format="wav")
 
     for timestamps in intervals['result']:
         time_start = timestamps['time_start']
         time_end = timestamps['time_end']
-        print(time_start, time_end)
 
-        new_sound = sound.fade(to_gain=-100,
-                               start=time_start * 1000,
-                               duration=(time_end - time_start + 1) * 1000)
+        print(f'Mute audio: {time_start} - {time_end}')
 
-        new_sound.export(save_path, format='wav', bitrate="192k")
+        duration_ms = (time_end - time_start) * 1000
+        silence = AudioSegment.silent(duration = duration_ms)
+        sound = sound.overlay(silence, position=time_start * 1000)
+
+
+
+        #new_sound = sound.fade(to_gain=-100,
+        #                       start=time_start * 1000,
+        #                       duration=(time_end - time_start + 1) * 1000)
+
+    sound.export(save_path, format='wav', bitrate="192k")
 
     # sound.export(save_path, format='wav', bitrate="192k")
 
