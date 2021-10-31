@@ -1,4 +1,4 @@
-aiofiles==0.5.0
+#aiofiles==0.5.0
 aniso8601==7.0.0
 async-exit-stack==1.0.1
 async-generator==1.10
@@ -38,4 +38,20 @@ websockets==8.1
 opencv-python~=4.5.4.58
 moviepy~=1.0.3
 Pillow~=8.3.2
+
 SpeechRecognition==3.8.1
+
+
+boto3==1.19.7
+
+
+aiofiles==0.6.0
+celery==4.4.7
+#fastapi==0.64.0
+flower==0.9.7
+#Jinja2==2.11.3
+pytest==6.2.4
+redis==3.5.3
+#requests==2.25.1
+#uvicorn==0.13.4
+

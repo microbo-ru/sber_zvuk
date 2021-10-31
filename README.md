@@ -14,7 +14,7 @@ Python >= 3.7
 To run the server, please execute the following from the root directory:
 
 ```bash
-pip3 install -r requirements.txt
+pip3 install -r requirements_worker.txt
 uvicorn main:app --host 0.0.0.0 --port 8080
 ```
 
