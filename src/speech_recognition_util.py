@@ -1,15 +1,13 @@
 import speech_recognition as speech_recog
 import json
 from pydub import AudioSegment
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import os
 
+
 CELEBRITY_DICTIONARY_PATH = os.environ.get(
-    'CELEBRITY_DICTIONARY_PATH', "C:/Users/Ilya/PycharmProjects/sber_zvuk/src/celebrities_names.txt")
+    'CELEBRITY_DICTIONARY_PATH', "src/celebrities_names.txt")
 SR_SLIDINGWINDOW_SEC = os.environ.get('SR_SLIDINGWINDOW_SEC', 3)
 SR_SHIFT_SEC = os.environ.get('SR_SHIFT_SEC', 1)
-
 
 # Michael Jakson = Jakson Michael
 def reverse_celeb_name(name):
@@ -20,7 +18,6 @@ def reverse_celeb_name(name):
     # joining the words and printing
     result = " ".join(words)
     return result
-
 
 # Returns a list of Celebrities from the dictionary provided
 def get_celebrities_list(path_to_list):
@@ -65,6 +62,10 @@ def get_transcript(inputaudio_file_path,
 
     return transcript_list
 
+def join_time_intervals(transcript_list):
+    firstRow = transcript_list[0]
+    last_start = firstRow['time_start']
+    last_end = firstRow['time_end']
 
 def join_time_intervals(transcript_list):
     firstRow = transcript_list[0]
@@ -96,14 +97,13 @@ def search_celebrities2(content, celebrity_list):
 def search_celebrities(content, celebrity_list):
     found_text = content.strip().lower()
     for celeb in celebrity_list:
-        if fuzz.partial_ratio(found_text, celeb) > 0.9:
+        if celeb in found_text:
             return True
 
 
 def mute_audio_interval(transcript_json_path,
                         original_audio_path,
                         audio_save_dir, prefix='test'):
-
     # don't work
     with open(transcript_json_path) as json_data:
         intervals = json.load(json_data)
@@ -159,7 +159,3 @@ def mute_audio_interval(transcript_json_path,
 
     # sound.export(save_path, format='wav', bitrate="192k")
 
-
-#get_transcript("D:/datasets/h_extracted_audio.wav", 198, '../test_audio.json')
-
-mute_audio_interval('../test_audio.json', 'D:/datasets/h_extracted_audio.wav', 'D:/datasets/')
