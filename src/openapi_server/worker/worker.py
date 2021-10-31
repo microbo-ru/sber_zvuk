@@ -41,5 +41,6 @@ def process_file(url, prefix):
     #todo:
     logger.info(f'Finish Framing:')
 
+    load_file_to_s3(file_name, prefix)
     logger.info(f'Finish Processing:')
     return True
